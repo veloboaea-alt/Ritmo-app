@@ -19,7 +19,26 @@ dialog{width:min(600px,calc(100% - 24px));max-height:90vh;overflow:auto;backgrou
 footer{text-align:center;color:var(--muted);font-size:12px;padding:28px}
 @media(max-width:650px){header{padding:12px 15px}main{padding:15px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:18px}.item{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.sectionhead{align-items:flex-start}}
 </style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#101019"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Ritmo"><link rel="apple-touch-icon" href="ritmo-icon.svg"><script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script></head>
-<body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyApI8rY6hKHAwPkUqyxswF1eDs5FSuOUOk",
+    authDomain: "ritmo-d2e26.firebaseapp.com",
+    projectId: "ritmo-d2e26",
+    storageBucket: "ritmo-d2e26.firebasestorage.app",
+    messagingSenderId: "173809621622",
+    appId: "1:173809621622:web:20c1a5bf209e085bcbdd57"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+  <body>
 <header><div class="brand"><div class="logo">♫</div><div>Ritmo<small>GESTIÓN DE EVENTOS</small></div></div><button class="btn secondary" id="exportBtn">Exportar CSV</button></header>
 <main>
 <div class="notice">Versión gratuita sin suscripción. Los datos se guardan en este navegador y dispositivo. Usa «Exportar CSV» para hacer una copia de seguridad.</div>
