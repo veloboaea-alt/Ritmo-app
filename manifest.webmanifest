@@ -1,0 +1,18 @@
+{
+  "name": "Ritmo · Gestión de eventos",
+  "short_name": "Ritmo",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101019",
+  "theme_color": "#101019",
+  "description": "Gestión de clientes, eventos y cobros para tu grupo musical.",
+  "icons": [
+    {
+      "src": "ritmo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
