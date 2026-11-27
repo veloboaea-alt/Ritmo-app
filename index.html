@@ -213,6 +213,7 @@ const configs={
    ["duration","Duración","text",false],
    ["schedule","Horario","text",false],
    ["price","Precio total (€)","number",false],
+   ["paid","¿Está pagado?","checkbox",false],
    ["hasDeposit","¿Ha hecho reserva?","checkbox",false],
    ["deposit","Importe de la reserva (€)","number",false],
    ["depositTo","¿A quién se entregó la reserva?","text",false],
@@ -264,6 +265,32 @@ function showMessage(text,cls="message"){
  $("formMessage").textContent=text;
 }
 
+/*
+ * El cliente se considera pagado cuando tiene al menos un cobro
+ * enlazado y todos esos cobros están marcados como Pagado.
+ */
+function updateClientPaid(clientId){
+ const client=clientById(clientId);
+ if(!client)return;
+
+ const payments=data.payments.filter(payment=>payment.clientId===clientId);
+ client.paid=payments.length>0&&payments.every(payment=>payment.status==="Pagado");
+}
+
+/*
+ * Al cambiar manualmente la casilla del cliente, se actualizan
+ * todos los cobros que estén enlazados con ese cliente.
+ */
+function syncPaymentsFromClient(client){
+ data.payments=data.payments.map(payment=>{
+  if(payment.clientId!==client.id)return payment;
+  return {
+   ...payment,
+   status:client.paid?"Pagado":"Pendiente"
+  };
+ });
+}
+
 function showTab(next){
  tab=next;
  editing=null;
@@ -311,6 +338,7 @@ function renderForm(){
    const input=document.createElement("input");
    input.type="checkbox";
    input.id="field_"+key;
+   input.name=key;
    const lab=document.createElement("label");
    lab.htmlFor=input.id;
    lab.textContent=label;
@@ -401,6 +429,7 @@ function renderRecords(){
    if(item.duration)details.push("Duración: "+item.duration);
    if(item.schedule)details.push("Horario: "+item.schedule);
    if(item.price!==""&&item.price!=null)details.push("Precio: "+item.price+" €");
+   details.push("Estado de pago: "+(item.paid?"Pagado":"Pendiente"));
    if(item.hasDeposit)details.push("Reserva: "+(item.deposit||0)+" €"+(item.depositTo?" · "+item.depositTo:""));
    if(item.notes)details.push("Nota: "+item.notes);
   }else if(tab==="agenda"){
@@ -468,7 +497,10 @@ function scheduleSave(){
  $("syncStatus").textContent="Guardando cambios…";
  clearTimeout(saveTimer);
  saveTimer=setTimeout(async()=>{
-  if(saving)return;
+  if(saving){
+   scheduleSave();
+   return;
+  }
   saving=true;
   try{
    await setDoc(dataRef,data);
@@ -501,6 +533,9 @@ $("recordForm").addEventListener("submit",event=>{
  if(tab==="clients"){
   record.price=record.price===""?"":Number(record.price);
   record.deposit=record.deposit===""?"":Number(record.deposit);
+
+  // Si se modifica la casilla del cliente, actualizar sus cobros.
+  syncPaymentsFromClient(record);
  }else{
   const selected=clientById(record.clientId);
   if(!selected){
@@ -516,6 +551,11 @@ $("recordForm").addEventListener("submit",event=>{
   data[tab]=data[tab].map(item=>item.id===editing?record:item);
  }else{
   data[tab].push(record);
+ }
+
+ // Después de guardar un cobro, recalcular el estado del cliente.
+ if(tab==="payments"){
+  updateClientPaid(record.clientId);
  }
 
  resetForm();
@@ -543,6 +583,12 @@ async function deleteRecord(id){
  if(!confirm(question))return;
 
  data[tab]=data[tab].filter(record=>record.id!==id);
+
+ // Si se elimina un cobro, recalcular el estado del cliente.
+ if(tab==="payments"){
+  updateClientPaid(item.clientId);
+ }
+
  renderRecords();
  scheduleSave();
 }
@@ -608,6 +654,13 @@ onAuthStateChanged(auth,async user=>{
     agenda:Array.isArray(oldData.agenda)?oldData.agenda:[],
     payments:Array.isArray(oldData.payments)?oldData.payments:[]
    };
+
+   // Añadir estado de pago a clientes antiguos si aún no lo tienen.
+   data.clients=data.clients.map(client=>({
+    ...client,
+    paid:client.paid===true
+   }));
+
    await setDoc(dataRef,data);
   }else{
    const cloud=snapshot.data();
@@ -616,6 +669,12 @@ onAuthStateChanged(auth,async user=>{
     agenda:cloud.agenda||[],
     payments:cloud.payments||[]
    };
+
+   // Compatibilidad con clientes creados antes de la casilla pagado.
+   data.clients=data.clients.map(client=>({
+    ...client,
+    paid:client.paid===true
+   }));
   }
 
   stopSync=onSnapshot(dataRef,snapshot=>{
@@ -626,6 +685,12 @@ onAuthStateChanged(auth,async user=>{
      agenda:cloud.agenda||[],
      payments:cloud.payments||[]
     };
+
+    data.clients=data.clients.map(client=>({
+     ...client,
+     paid:client.paid===true
+    }));
+
     renderForm();
     renderRecords();
     $("syncStatus").textContent="Datos sincronizados";
@@ -643,7 +708,7 @@ onAuthStateChanged(auth,async user=>{
 $("export").onclick=()=>{
  const rows=[[
   "Sección","Cliente","Teléfono","Tipo de evento","Ubicación",
-  "Duración","Horario","Precio","Reserva","Importe reserva",
+  "Duración","Horario","Precio","Pagado","Reserva","Importe reserva",
   "Reserva entregada a","Fecha","Hora","Importe cobro","Estado","Nota"
  ]];
 
@@ -651,8 +716,8 @@ $("export").onclick=()=>{
   rows.push([
    "Cliente",item.name||"",item.phone||"",item.eventType||"",
    item.location||"",item.duration||"",item.schedule||"",
-   item.price??"",item.hasDeposit?"Sí":"No",item.deposit??"",
-   item.depositTo||"","","","","",item.notes||""
+   item.price??"",item.paid?"Sí":"No",item.hasDeposit?"Sí":"No",
+   item.deposit??"",item.depositTo||"","","","","",item.notes||""
   ]);
  });
 
@@ -662,8 +727,8 @@ $("export").onclick=()=>{
    "Agenda",client?.name||item.clientName||"",client?.phone||"",
    client?.eventType||"",item.location||client?.location||"",
    client?.duration||"",client?.schedule||"",client?.price??"",
-   client?.hasDeposit?"Sí":"No",client?.deposit??"",
-   client?.depositTo||"",item.date||"",item.time||"",
+   client?.paid?"Sí":"No",client?.hasDeposit?"Sí":"No",
+   client?.deposit??"",client?.depositTo||"",item.date||"",item.time||"",
    "","",item.notes||""
   ]);
  });
@@ -673,9 +738,10 @@ $("export").onclick=()=>{
   rows.push([
    "Cobro",client?.name||item.clientName||"",client?.phone||"",
    client?.eventType||"",client?.location||"",client?.duration||"",
-   client?.schedule||"",client?.price??"",client?.hasDeposit?"Sí":"No",
-   client?.deposit??"",client?.depositTo||"",item.date||"",
-   "",item.amount??"",item.status||"",item.notes||""
+   client?.schedule||"",client?.price??"",client?.paid?"Sí":"No",
+   client?.hasDeposit?"Sí":"No",client?.deposit??"",
+   client?.depositTo||"",item.date||"","",item.amount??"",
+   item.status||"",item.notes||""
   ]);
  });
 
