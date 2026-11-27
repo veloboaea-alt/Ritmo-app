@@ -1,89 +1,349 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ritmo · Gestión musical</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171126">
+<title>Ritmo</title>
 <style>
-:root{--bg:#101019;--panel:#191925;--panel2:#202031;--line:#303044;--text:#f4f2fb;--muted:#a8a5bd;--purple:#9b72ff;--purple2:#7650dc;--green:#55d6a2;--red:#ff738b}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#24183e 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
-header{position:sticky;top:0;z-index:5;background:#101019eF;border-bottom:1px solid var(--line);backdrop-filter:blur(14px);padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#b58aff,#7044d6);font-size:21px}
-header small{display:block;color:var(--muted);font-size:11px;font-weight:500}
-main{max-width:1120px;margin:0 auto;padding:22px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.tab{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 15px;border-radius:12px;cursor:pointer;font-weight:650}.tab.active{background:#30234e;border-color:#8059dc;color:white}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}.stat,.card{background:linear-gradient(145deg,#1b1b2a,#171722);border:1px solid var(--line);border-radius:17px;padding:17px}.stat span{color:var(--muted);font-size:12px}.stat strong{display:block;font-size:24px;margin-top:5px}.stat strong.purple{color:#c4aaff}.stat strong.green{color:var(--green)}
-.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}.sectionhead h2{font-size:19px;margin:0}.muted{color:var(--muted)}.btn{border:0;border-radius:11px;padding:10px 14px;background:var(--purple);color:white;font-weight:750;cursor:pointer}.btn:hover{filter:brightness(1.08)}.btn.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text)}.btn.danger{background:#48202c;color:#ffb6c3;border:1px solid #673243}
-.search{width:100%;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);color:var(--text);margin-bottom:13px}
-.list{display:grid;gap:11px}.item{display:flex;justify-content:space-between;align-items:center;gap:15px;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px}.item h3{margin:0 0 4px;font-size:16px}.item p{margin:3px 0;color:var(--muted);font-size:13px}.money{font-weight:800}.tag{display:inline-block;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:700;background:#33264d;color:#cdbaff}.tag.ok{background:#16392f;color:#7ee6bc}.tag.pending{background:#49351e;color:#ffd08a}.actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:15px}
-dialog{width:min(600px,calc(100% - 24px));max-height:90vh;overflow:auto;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:22px}dialog::backdrop{background:#05050bc9;backdrop-filter:blur(4px)}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;color:var(--muted)}input,textarea,select{background:#11111b;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;width:100%}textarea{min-height:75px;resize:vertical}.formfoot{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.paymentline{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:8px 0;font-size:13px}.notice{border:1px solid #4b3c6b;background:#241c35;color:#cbbaff;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:16px}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:28px}
-@media(max-width:650px){header{padding:12px 15px}main{padding:15px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:18px}.item{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.sectionhead{align-items:flex-start}}
-</style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#101019"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Ritmo"><link rel="apple-touch-icon" href="ritmo-icon.svg"><script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script></head>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyApI8rY6hKHAwPkUqyxswF1eDs5FSuOUOk",
-    authDomain: "ritmo-d2e26.firebaseapp.com",
-    projectId: "ritmo-d2e26",
-    storageBucket: "ritmo-d2e26.firebasestorage.app",
-    messagingSenderId: "173809621622",
-    appId: "1:173809621622:web:20c1a5bf209e085bcbdd57"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
-  <body>
-<header><div class="brand"><div class="logo">♫</div><div>Ritmo<small>GESTIÓN DE EVENTOS</small></div></div><button class="btn secondary" id="exportBtn">Exportar CSV</button></header>
+:root{--bg:#171126;--panel:#211a35;--panel2:#2a2142;--text:#f7f3ff;--muted:#b8accf;--accent:#b99cff;--line:#3c3158}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:22px 18px 12px;max-width:900px;margin:auto}
+h1{margin:0;font-size:28px}
+header p{color:var(--muted);margin:6px 0}
+main{max-width:900px;margin:auto;padding:12px 16px 40px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+input,select,textarea,button{font:inherit;border-radius:12px;padding:12px;border:1px solid var(--line);background:#171126;color:var(--text);width:100%}
+input::placeholder{color:#9285aa}
+button{background:var(--accent);color:#201633;border:0;font-weight:700;cursor:pointer}
+button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+button.danger{background:#552b40;color:#ffe6eb}
+form{display:grid;gap:10px}
+.nav{display:flex;gap:8px;overflow:auto;padding:4px 0 12px}
+.nav button{min-width:100px;white-space:nowrap}
+.nav button.active{background:#e0d2ff}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}
+.item strong{display:block;font-size:17px}
+.item small{display:block;color:var(--muted);margin:5px 0 10px}
+.actions{display:flex;gap:8px}
+.actions button{padding:9px;font-size:14px}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.error{color:#ffb7c2;white-space:pre-wrap}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.topline button{width:auto}
+.empty{color:var(--muted);padding:18px 0;text-align:center}
+@media(max-width:560px){header{padding-top:18px}}
+</style>
+</head>
+<body>
+<header>
+<div class="topline">
+<div><h1>Ritmo</h1><p>Tu espacio de organización</p></div>
+<button id="logout" class="secondary hidden">Salir</button>
+</div>
+</header>
 <main>
-<div class="notice">Versión gratuita sin suscripción. Los datos se guardan en este navegador y dispositivo. Usa «Exportar CSV» para hacer una copia de seguridad.</div>
-<div class="tabs"><button class="tab active" data-tab="clients">Clientes</button><button class="tab" data-tab="events">Agenda</button><button class="tab" data-tab="payments">Cobros</button></div>
-<div class="stats"><div class="stat"><span>Eventos registrados</span><strong id="statEvents">0</strong></div><div class="stat"><span>Total recibido</span><strong class="green" id="statPaid">0 €</strong></div><div class="stat"><span>Pendiente de cobro</span><strong class="purple" id="statDue">0 €</strong></div></div>
-<section id="view"></section>
-</main><footer>Ritmo · Tus datos permanecen en este dispositivo.</footer>
-<dialog id="dlg"><form id="form"><div class="sectionhead"><h2 id="dialogTitle">Nueva ficha</h2><button type="button" class="btn secondary" id="closeDlg">Cerrar</button></div><div id="formBody"></div><div class="formfoot"><button type="button" class="btn secondary" id="cancelDlg">Cancelar</button><button class="btn" type="submit">Guardar</button></div></form></dialog>
-<script>
-const $=s=>document.querySelector(s);const euro=n=>Number(n||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
-let db=JSON.parse(localStorage.getItem('ritmo_data_v1')||'{"clients":[],"events":[],"payments":[]}');
-let tab='clients',editing=null,search='';
-function save(){localStorage.setItem('ritmo_data_v1',JSON.stringify(db));render()}
-function client(id){return db.clients.find(x=>x.id===id)}
-function eventBy(id){return db.events.find(x=>x.id===id)}
-function paid(id){return db.payments.filter(p=>p.eventId===id).reduce((a,p)=>a+Number(p.amount||0),0)}
-function due(e){return Math.max(0,Number(e.price||0)-paid(e.id))}
-function dateFmt(d){if(!d)return 'Fecha sin definir';return new Date(d+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})}
-function safe(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function render(){
-$('#statEvents').textContent=db.events.length;$('#statPaid').textContent=euro(db.payments.reduce((a,p)=>a+Number(p.amount||0),0));$('#statDue').textContent=euro(db.events.reduce((a,e)=>a+due(e),0));
-document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-let v=$('#view');
-if(tab==='clients'){v.innerHTML=`<div class="sectionhead"><h2>Fichas de clientes</h2><button class="btn" id="add">＋ Nueva ficha</button></div><input class="search" id="search" placeholder="Buscar cliente, teléfono o dirección…" value="${safe(search)}"><div class="list" id="list"></div>`;
-$('#add').onclick=()=>openClient();$('#search').oninput=e=>{search=e.target.value;renderList()};renderList()}
-if(tab==='events'){v.innerHTML=`<div class="sectionhead"><h2>Agenda de eventos</h2><button class="btn" id="add">＋ Nuevo evento</button></div><div class="list">${db.events.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(e=>`<article class="item"><div><h3>${safe(e.title||client(e.clientId)?.name||'Evento')}</h3><p>${dateFmt(e.date)} · ${safe(e.time||'Hora pendiente')}</p><p>${safe(client(e.clientId)?.name||'Cliente no asignado')} · ${safe(e.address||'Dirección pendiente')}</p><p>Precio <b>${euro(e.price)}</b> · Recibido ${euro(paid(e.id))} · Pendiente ${euro(due(e))}</p></div><div class="actions"><button class="btn secondary" onclick="openEvent('${e.id}')">Editar</button><button class="btn secondary" onclick="openPayment('${e.id}')">＋ Cobro</button><button class="btn danger" onclick="delEvent('${e.id}')">Eliminar</button></div></article>`).join('')||'<div class="empty">Todavía no hay eventos.</div>'}</div>`;$('#add').onclick=()=>openEvent()}
-if(tab==='payments'){v.innerHTML=`<div class="sectionhead"><h2>Registro de cobros</h2><button class="btn" id="add">＋ Registrar cobro</button></div><div class="list">${db.payments.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(p=>`<article class="item"><div><h3>${euro(p.amount)} · ${safe(client(eventBy(p.eventId)?.clientId)?.name||'Cliente')}</h3><p>${dateFmt(p.date)} · ${safe(eventBy(p.eventId)?.title||'Evento')}</p><p>Recibido por ${safe(p.receiver||'Sin indicar')} · ${safe(p.method||'Método no indicado')}</p></div><div class="actions"><button class="btn danger" onclick="delPayment('${p.id}')">Eliminar</button></div></article>`).join('')||'<div class="empty">Todavía no hay cobros registrados.</div>'}</div>`;$('#add').onclick=()=>openPayment()}
+<section id="login" class="panel">
+<h2>Iniciar sesión</h2>
+<p class="muted">Entra con tu cuenta para acceder a tus datos.</p>
+<form id="loginForm">
+<input id="email" type="email" autocomplete="username" value="veloboaea@gmail.com" placeholder="Correo electrónico" required>
+<input id="password" type="password" autocomplete="current-password" placeholder="Contraseña" required>
+<button id="loginButton" type="submit">Entrar</button>
+<div id="loginMessage" class="error" role="status"></div>
+</form>
+</section>
+<section id="app" class="hidden">
+<div class="nav">
+<button class="active" data-tab="clients">Clientes</button>
+<button class="secondary" data-tab="agenda">Agenda</button>
+<button class="secondary" data-tab="payments">Cobros</button>
+</div>
+<div class="panel">
+<div class="topline">
+<h2 id="sectionTitle">Clientes</h2>
+<button id="export" class="secondary">Exportar CSV</button>
+</div>
+<p id="syncStatus" class="muted">Conectando con la nube…</p>
+</div>
+<div class="panel">
+<h3 id="formTitle">Añadir cliente</h3>
+<form id="recordForm">
+<input type="hidden" id="recordId">
+<div id="fields"></div>
+<button type="submit" id="saveButton">Guardar</button>
+<button type="button" id="cancelEdit" class="secondary hidden">Cancelar edición</button>
+</form>
+<p id="formMessage" class="muted"></p>
+</div>
+<div class="panel"><div id="records"></div></div>
+</section>
+</main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyApI8rY6hKHAwPkUqyxswF1eDs5FSuOUOk",
+authDomain:"ritmo-d2e26.firebaseapp.com",
+projectId:"ritmo-d2e26",
+storageBucket:"ritmo-d2e26.firebasestorage.app",
+messagingSenderId:"173809621622",
+appId:"1:173809621622:web:20c1a5bf209e085bcbdd57"
+};
+
+const appFirebase=initializeApp(firebaseConfig);
+const auth=getAuth(appFirebase);
+const db=getFirestore(appFirebase);
+const dataRef=doc(db,"ritmo","shared");
+const $=id=>document.getElementById(id);
+
+let data={clients:[],agenda:[],payments:[]};
+let tab="clients",stopSync=null,saveTimer=null,editing=null;
+
+const configs={
+clients:{title:"Clientes",fields:[
+["name","Nombre","text",true],
+["phone","Teléfono","tel",false],
+["email","Correo","email",false],
+["notes","Notas","text",false]]},
+agenda:{title:"Agenda",fields:[
+["name","Cliente / actividad","text",true],
+["date","Fecha","date",true],
+["time","Hora","time",false],
+["notes","Notas","text",false]]},
+payments:{title:"Cobros",fields:[
+["name","Cliente / concepto","text",true],
+["amount","Importe (€)","number",true],
+["date","Fecha","date",false],
+["status","Estado","select",true]]}
+};
+
+function message(text,cls="muted"){
+$("formMessage").className=cls;
+$("formMessage").textContent=text;
 }
-function renderList(){let q=search.toLowerCase();let arr=db.clients.filter(c=>[c.name,c.phone,c.address].join(' ').toLowerCase().includes(q));$('#list').innerHTML=arr.map(c=>{let es=db.events.filter(e=>e.clientId===c.id);return `<article class="item"><div><h3>${safe(c.name)}</h3><p>${safe(c.phone||'Sin teléfono')} · ${safe(c.address||'Dirección sin indicar')}</p><p>${es.length} evento(s) · Pendiente ${euro(es.reduce((a,e)=>a+due(e),0))}</p></div><div class="actions"><button class="btn secondary" onclick="openClient('${c.id}')">Ver / editar</button><button class="btn secondary" onclick="openEvent(null,'${c.id}')">＋ Evento</button><button class="btn danger" onclick="delClient('${c.id}')">Eliminar</button></div></article>`}).join('')||'<div class="empty">No hay clientes todavía. Pulsa «Nueva ficha» para añadir el primero.</div>'}
-function field(label,name,type='text',value='',full=false,extra=''){return `<div class="field ${full?'full':''}"><label>${label}</label><input name="${name}" type="${type}" value="${safe(value)}" ${extra}></div>`}
-function area(label,name,value='',full=true){return `<div class="field ${full?'full':''}"><label>${label}</label><textarea name="${name}">${safe(value)}</textarea></div>`}
-function show(title,body){$('#dialogTitle').textContent=title;$('#formBody').innerHTML=body;$('#dlg').showModal()}
-function openClient(id){editing=id;let c=id?client(id):{};show(id?'Editar ficha':'Nueva ficha',`<div class="formgrid">${field('Nombre del cliente *','name','text',c.name||'',true,'required')}${field('Teléfono','phone','tel',c.phone||'')}${field('Dirección del evento','address','text',c.address||'',true)}${area('Notas','notes',c.notes||'')}</div>`)}
-function openEvent(id,clientId){editing=id;let e=id?eventBy(id):{};let opts=db.clients.map(c=>`<option value="${c.id}" ${c.id===(e.clientId||clientId)?'selected':''}>${safe(c.name)}</option>`).join('');show(id?'Editar evento':'Nuevo evento',`<div class="formgrid"><div class="field full"><label>Cliente *</label><select name="clientId" required><option value="">Seleccionar cliente…</option>${opts}</select></div>${field('Nombre / tipo de evento','title','text',e.title||'',true)}${field('Fecha','date','date',e.date||'')}${field('Horario','time','text',e.time||'')}${field('Precio acordado (€)','price','number',e.price||'',false,'min="0" step="0.01"')}${field('Reserva / anticipo acordado (€)','deposit','number',e.deposit||'',false,'min="0" step="0.01"')}${field('¿Reserva confirmada?','reserved','text',e.reserved?'Sí':'No')}${field('Dirección','address','text',e.address||'',true)}${area('Notas','notes',e.notes||'')}</div>`)}
-function openPayment(eventId){editing=null;let opts=db.events.map(e=>`<option value="${e.id}" ${e.id===eventId?'selected':''}>${safe(e.title||client(e.clientId)?.name||'Evento')} · ${dateFmt(e.date)}</option>`).join('');show('Registrar cobro',`<div class="formgrid"><div class="field full"><label>Evento *</label><select name="eventId" required><option value="">Seleccionar evento…</option>${opts}</select></div>${field('Importe recibido (€) *','amount','number','',false,'required min="0.01" step="0.01"')}${field('Fecha de cobro','date','date',new Date().toISOString().slice(0,10))}${field('Quién recibió el dinero','receiver','text','')}${field('Método de pago','method','text','Efectivo')}${area('Notas','notes','')}</div>`)}
-$('#form').onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(e.target).entries());if($('#dialogTitle').textContent.includes('ficha')){if(editing)Object.assign(client(editing),d);else db.clients.push({id:crypto.randomUUID(),...d})}
-else if($('#dialogTitle').textContent.includes('evento')){d.price=Number(d.price||0);d.deposit=Number(d.deposit||0);d.reserved=String(d.reserved||'').toLowerCase()==='sí';if(editing)Object.assign(eventBy(editing),d);else db.events.push({id:crypto.randomUUID(),...d})}
-else db.payments.push({id:crypto.randomUUID(),...d,amount:Number(d.amount),eventId:d.eventId});
-$('#dlg').close();save()};
-function delClient(id){if(!confirm('¿Eliminar esta ficha? Los eventos y cobros asociados no se borran.'))return;db.clients=db.clients.filter(c=>c.id!==id);save()}
-function delEvent(id){if(!confirm('¿Eliminar este evento y sus cobros?'))return;db.events=db.events.filter(e=>e.id!==id);db.payments=db.payments.filter(p=>p.eventId!==id);save()}
-function delPayment(id){if(!confirm('¿Eliminar este cobro?'))return;db.payments=db.payments.filter(p=>p.id!==id);save()}
-window.openClient=openClient;window.openEvent=openEvent;window.openPayment=openPayment;window.delClient=delClient;window.delEvent=delEvent;window.delPayment=delPayment;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
-$('#closeDlg').onclick=$('#cancelDlg').onclick=()=>$('#dlg').close();
-$('#exportBtn').onclick=()=>{let rows=[['Tipo','Cliente','Evento','Fecha','Importe','Pendiente','Recibido por','Teléfono','Dirección','Notas']];db.clients.forEach(c=>rows.push(['Cliente',c.name,'','','','','',c.phone,c.address,c.notes]));db.events.forEach(e=>rows.push(['Evento',client(e.clientId)?.name||'',e.title,e.date,e.price,due(e),'',client(e.clientId)?.phone||'',e.address,e.notes]));db.payments.forEach(p=>rows.push(['Cobro',client(eventBy(p.eventId)?.clientId)?.name||'',eventBy(p.eventId)?.title||'',p.date,p.amount,'',p.receiver,'','',p.method+' '+p.notes]));let csv=rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='ritmo-copia-datos.csv';a.click();URL.revokeObjectURL(a.href)};
-render();
-</script></body></html>
+
+function safe(v){
+return String(v??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+}
+
+function showTab(next){
+tab=next;
+document.querySelectorAll("[data-tab]").forEach(b=>{
+b.classList.toggle("active",b.dataset.tab===tab);
+b.classList.toggle("secondary",b.dataset.tab!==tab);
+});
+$("sectionTitle").textContent=configs[tab].title;
+renderForm();
+renderRecords();
+}
+
+function renderForm(){
+const c=configs[tab];
+$("formTitle").textContent=(editing?"Editar ":"Añadir ")+c.title.toLowerCase();
+$("fields").innerHTML="";
+c.fields.forEach(([key,label,type,required])=>{
+let el;
+if(type==="select"){
+el=document.createElement("select");
+el.innerHTML='<option value="Pendiente">Pendiente</option><option value="Pagado">Pagado</option>';
+}else{
+el=document.createElement("input");
+el.type=type;
+el.placeholder=label;
+}
+el.id="field_"+key;
+el.name=key;
+el.required=required;
+if(type==="number")el.step="0.01";
+$("fields").appendChild(el);
+});
+$("cancelEdit").classList.toggle("hidden",!editing);
+}
+
+function renderRecords(){
+const list=data[tab]||[];
+const out=$("records");
+if(!list.length){
+out.innerHTML='<div class="empty">Todavía no hay registros.</div>';
+return;
+}
+out.innerHTML=list.slice().sort((a,b)=>(b.created||0)-(a.created||0)).map(item=>{
+const c=configs[tab];
+let details=c.fields.filter(f=>f[0]!=="name")
+.map(f=>item[f[0]]?`${f[1]}: ${item[f[0]]}`:"")
+.filter(Boolean).join(" · ");
+return `<div class="item">
+<strong>${safe(item.name||"Sin nombre")}</strong>
+<small>${safe(details||"Sin detalles")}</small>
+<div class="actions">
+<button class="secondary" data-edit="${safe(item.id)}">Editar</button>
+<button class="danger" data-delete="${safe(item.id)}">Eliminar</button>
+</div></div>`;
+}).join("");
+out.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editRecord(b.dataset.edit));
+out.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>deleteRecord(b.dataset.delete));
+}
+
+function editRecord(id){
+const item=data[tab].find(x=>x.id===id);
+if(!item)return;
+editing=id;
+renderForm();
+configs[tab].fields.forEach(([key])=>{
+const el=$("field_"+key);
+if(el)el.value=item[key]??"";
+});
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function resetForm(){
+editing=null;
+$("recordForm").reset();
+$("recordId").value="";
+renderForm();
+}
+
+function scheduleSave(){
+$("syncStatus").textContent="Guardando cambios…";
+clearTimeout(saveTimer);
+saveTimer=setTimeout(async()=>{
+try{
+await setDoc(dataRef,data);
+$("syncStatus").textContent="Sincronizado con la nube";
+}catch(e){
+$("syncStatus").textContent="No se pudo guardar: "+e.message;
+}
+},350);
+}
+
+$("recordForm").addEventListener("submit",e=>{
+e.preventDefault();
+const obj={};
+configs[tab].fields.forEach(([key])=>{
+obj[key]=$("field_"+key)?.value.trim()||"";
+});
+obj.id=editing||crypto.randomUUID();
+obj.created=editing?(data[tab].find(x=>x.id===editing)?.created||Date.now()):Date.now();
+if(tab==="payments")obj.amount=Number(obj.amount||0);
+if(editing)data[tab]=data[tab].map(x=>x.id===editing?obj:x);
+else data[tab].push(obj);
+resetForm();
+renderRecords();
+message("Guardado.");
+scheduleSave();
+});
+
+$("cancelEdit").onclick=()=>{
+resetForm();
+message("");
+};
+
+async function deleteRecord(id){
+if(!confirm("¿Eliminar este registro?"))return;
+data[tab]=data[tab].filter(x=>x.id!==id);
+renderRecords();
+scheduleSave();
+}
+
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+$("loginForm").addEventListener("submit",async e=>{
+e.preventDefault();
+$("loginMessage").textContent="Comprobando acceso…";
+$("loginButton").disabled=true;
+try{
+const email=$("email").value.trim().toLowerCase();
+if(email!=="veloboaea@gmail.com"){
+throw new Error("Esta aplicación solo permite entrar con el correo autorizado.");
+}
+await signInWithEmailAndPassword(auth,email,$("password").value);
+$("loginMessage").textContent="";
+}catch(err){
+$("loginMessage").textContent=err.code==="auth/invalid-credential"
+?"El correo o la contraseña no son correctos."
+:err.code==="auth/too-many-requests"
+?"Demasiados intentos. Espera un poco e inténtalo de nuevo."
+:"No se pudo entrar: "+err.message;
+}finally{
+$("loginButton").disabled=false;
+}
+});
+
+$("logout").onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth,async user=>{
+if(stopSync){stopSync();stopSync=null;}
+$("login").classList.toggle("hidden",!!user);
+$("app").classList.toggle("hidden",!user);
+$("logout").classList.toggle("hidden",!user);
+if(!user)return;
+
+if((user.email||"").toLowerCase()!=="veloboaea@gmail.com"){
+await signOut(auth);
+$("loginMessage").textContent="Este correo no está autorizado para usar Ritmo.";
+return;
+}
+
+$("syncStatus").textContent="Cargando tus datos…";
+try{
+const snap=await getDoc(dataRef);
+if(!snap.exists()){
+let local={};
+try{local=JSON.parse(localStorage.getItem("ritmo_data_v1")||"{}");}catch{}
+data={
+clients:Array.isArray(local.clients)?local.clients:[],
+agenda:Array.isArray(local.agenda)?local.agenda:[],
+payments:Array.isArray(local.payments)?local.payments:[]
+};
+await setDoc(dataRef,data);
+}else{
+const cloud=snap.data();
+data={
+clients:cloud.clients||[],
+agenda:cloud.agenda||[],
+payments:cloud.payments||[]
+};
+}
+stopSync=onSnapshot(dataRef,s=>{
+if(s.exists()){
+const d=s.data();
+data={clients:d.clients||[],agenda:d.agenda||[],payments:d.payments||[]};
+renderRecords();
+$("syncStatus").textContent="Sincronizado con la nube";
+}
+},err=>{
+$("syncStatus").textContent="Error de sincronización: "+err.message;
+});
+showTab(tab);
+}catch(err){
+$("syncStatus").textContent="Error al cargar datos: "+err.message;
+}
+});
+
+$("export").onclick=()=>{
+const rows=[["Sección","Nombre","Teléfono","Correo","Fecha","Hora","Importe","Estado","Notas"]];
+Object.entries(data).forEach(([section,items])=>
+items.forEach(x=>rows.push([
+section,x.name||"",x.phone||"",x.email||"",x.date||"",x.time||"",x.amount??"",x.status||"",x.notes||""
+])));
+const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="ritmo.csv";
+a.click();
+URL.revokeObjectURL(url);
+};
+
+renderForm();
+</script>
+</body>
+</html>
